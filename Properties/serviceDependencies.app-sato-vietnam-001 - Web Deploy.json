@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "mssql1": {
+      "serviceConnectorResourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('serviceConnectorResourceGroupName')]/providers/Microsoft.Web/sites/app-sato-vietnam-001/providers/Microsoft.ServiceLinker/linkers/ConnectionStringsDatabaseConnection_74610DCF44",
+      "secretStore": "AzureAppSettings",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Sql/servers/sqlsever-sato-vietnam-001/databases/sqldb-sato-vietnam-001",
+      "type": "mssql.azure",
+      "connectionId": "ConnectionStrings:DatabaseConnection",
+      "dynamicId": null
+    }
+  }
+}

@@ -1,0 +1,26 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace StockDemo.API.Models.DTO.Stock
+{
+    public class UpdateStockInDto
+    {
+        [MaxLength(50)]
+        public string StockInCode { get; set; }
+
+        public int? ProductId { get; set; }
+
+        public int? LocationId { get; set; }
+
+        [Range(1, int.MaxValue, ErrorMessage = "Số lượng phải > 0")]
+        public int? Quantity { get; set; }
+
+        [MaxLength(200)]
+        public string QRCode { get; set; }
+
+        [MaxLength(100)]
+        public string Supplier { get; set; }
+
+        [MaxLength(50)]
+        public string Status { get; set; }
+    }
+}
