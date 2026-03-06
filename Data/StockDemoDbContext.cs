@@ -28,7 +28,7 @@ namespace StockDemo.API.Data
                 {
                     UserId = 1,
                     Username = "admin",
-                    PasswordHash = "123456", // Demo hash
+                    PasswordHash = "vKjULaJ033cQ76FN/YbnpW0cLjFZWmecQtQGjO5QgQZt8Pxoj8J3JTjEALz4NDnA",   
                     FullName = "Administrator",
                     Role = "Admin",
                     IsActive = true,
@@ -38,7 +38,7 @@ namespace StockDemo.API.Data
                 {
                     UserId = 2,
                     Username = "manager1",
-                    PasswordHash = "123456",
+                    PasswordHash = "vKjULaJ033cQ76FN/YbnpW0cLjFZWmecQtQGjO5QgQZt8Pxoj8J3JTjEALz4NDnA",
                     FullName = "Nguyen Van A",
                     Role = "Manager",
                     IsActive = true,
@@ -48,7 +48,7 @@ namespace StockDemo.API.Data
                 {
                     UserId = 3,
                     Username = "staff1",
-                    PasswordHash = "123456",
+                    PasswordHash = "vKjULaJ033cQ76FN/YbnpW0cLjFZWmecQtQGjO5QgQZt8Pxoj8J3JTjEALz4NDnA",
                     FullName = "Tran Thi B",
                     Role = "Staff",
                     IsActive = true,
