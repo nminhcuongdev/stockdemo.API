@@ -25,5 +25,4 @@ Follow these steps to get a local copy up and running:
 ### 2. Installation & Setup
 Clone the repository to your local machine:
 ```bash
-git clone [https://github.com/username/project-name.git](https://github.com/username/project-name.git)
-cd project-name
+docker-compose up --build -d
