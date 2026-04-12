@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using StockDemo.API.Data;
@@ -7,20 +8,24 @@ using StockDemo.API.Repositories.UserRepository;
 using StockDemo.API.Models.Domain;
 using StockDemo.API.Models;
 using StockDemo.API.Helpers;
+using StockDemo.API.Services;
 
 namespace StockDemo.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class UsersController : ControllerBase
     {
         private readonly IUserRepository userRepository;
         private readonly IMapper mapper;
+        private readonly IJwtService jwtService;
 
-        public UsersController(IUserRepository userRepository, IMapper mapper)
+        public UsersController(IUserRepository userRepository, IMapper mapper, IJwtService jwtService)
         {
             this.userRepository = userRepository;
             this.mapper = mapper;
+            this.jwtService = jwtService;
         }
 
         // GET: api/users
@@ -49,6 +54,7 @@ namespace StockDemo.API.Controllers
         }
 
         // POST: api/users/login
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
@@ -85,21 +91,25 @@ namespace StockDemo.API.Controllers
             // Update last login date
             await userRepository.UpdateLastLoginAsync(user.UserId);
 
-            // Tạo response
+            // Generate JWT
+            var jwt = jwtService.GenerateToken(user);
+
+            // Create response
             var loginResponse = new LoginResponseDto
             {
                 UserId = user.UserId,
                 Username = user.Username,
                 FullName = user.FullName,
                 Role = user.Role,
-                Token = null, // Không sử dụng JWT
-                ExpiresAt = DateTime.Now.AddHours(8) // Session 8 giờ
+                Token = jwt.Token,
+                ExpiresAt = jwt.ExpiresAt
             };
 
             return Ok(ApiResponse<LoginResponseDto>.SuccessResult(loginResponse, "Đăng nhập thành công"));
         }
 
         // POST: api/users
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateUserDto createUserDto)
         {

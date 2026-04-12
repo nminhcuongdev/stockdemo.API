@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StockDemo.API.Models;
 using StockDemo.API.Models.Domain;
@@ -13,6 +14,7 @@ namespace StockDemo.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class StocksController : ControllerBase
     {
         private readonly IStockRepository stockRepository;

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StockDemo.API.Models;
 using StockDemo.API.Models.Domain;
@@ -13,6 +14,7 @@ namespace StockDemo.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class StockOutsController : ControllerBase
     {
         private readonly IStockOutRepository stockOutRepository;
@@ -26,12 +28,28 @@ namespace StockDemo.API.Controllers
 
         // GET: api/stockouts
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(
+            [FromQuery] string? filterOn,
+            [FromQuery] string? filterQuery,
+            [FromQuery] string? sortBy,
+            [FromQuery] string? sortOrder = "asc",
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10)
         {
-            var stockOuts = await stockOutRepository.GetAllStockOutsWithDetailsAsync();
-            var stockOutDtos = mapper.Map<List<StockOutDto>>(stockOuts);
+            var pagedStockOuts = await stockOutRepository.GetAllStockOutsWithDetailsAsync(
+                filterOn, filterQuery, sortBy, sortOrder, pageNumber, pageSize);
 
-            return Ok(ApiResponse<List<StockOutDto>>.SuccessResult(stockOutDtos, "Lấy danh sách phiếu xuất thành công"));
+            var dtoItems = mapper.Map<List<StockOutDto>>(pagedStockOuts.Items);
+
+            var pagedResultDto = new PagedResult<StockOutDto>
+            {
+                Items = dtoItems,
+                PageNumber = pagedStockOuts.PageNumber,
+                PageSize = pagedStockOuts.PageSize,
+                TotalCount = pagedStockOuts.TotalCount
+            };
+
+            return Ok(ApiResponse<PagedResult<StockOutDto>>.SuccessResult(pagedResultDto, "Lấy danh sách phiếu xuất thành công"));
         }
 
         // GET: api/stockouts/{id}

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StockDemo.API.Models;
 using StockDemo.API.Models.Domain;
@@ -11,6 +12,7 @@ namespace StockDemo.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class StockInsController : ControllerBase
     {
         private readonly IStockInRepository stockInRepository;
@@ -24,12 +26,28 @@ namespace StockDemo.API.Controllers
 
         // GET: api/stockins
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(
+            [FromQuery] string? filterOn,
+            [FromQuery] string? filterQuery,
+            [FromQuery] string? sortBy,
+            [FromQuery] string? sortOrder = "asc",
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10)
         {
-            var stockIns = await stockInRepository.GetAllStockInsWithDetailsAsync();
-            var stockInDtos = mapper.Map<List<StockInDto>>(stockIns);
+            var pagedStockIns = await stockInRepository.GetAllStockInsWithDetailsAsync(
+                filterOn, filterQuery, sortBy, sortOrder, pageNumber, pageSize);
 
-            return Ok(ApiResponse<List<StockInDto>>.SuccessResult(stockInDtos, "Lấy danh sách phiếu nhập thành công"));
+            var dtoItems = mapper.Map<List<StockInDto>>(pagedStockIns.Items);
+
+            var pagedResultDto = new PagedResult<StockInDto>
+            {
+                Items = dtoItems,
+                PageNumber = pagedStockIns.PageNumber,
+                PageSize = pagedStockIns.PageSize,
+                TotalCount = pagedStockIns.TotalCount
+            };
+
+            return Ok(ApiResponse<PagedResult<StockInDto>>.SuccessResult(pagedResultDto, "Lấy danh sách phiếu nhập thành công"));
         }
 
         // GET: api/stockins/{id}

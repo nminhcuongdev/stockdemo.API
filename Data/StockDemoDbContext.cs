@@ -5,7 +5,8 @@ namespace StockDemo.API.Data
 {
     public class StockDemoDbContext: DbContext
     {
-        public StockDemoDbContext(DbContextOptions dbContextOptions) : base(dbContextOptions)
+        public StockDemoDbContext(DbContextOptions<StockDemoDbContext> options)
+            : base(options)
         {
 
         }
