@@ -18,5 +18,11 @@ namespace StockDemo.API.Models.DTO.Product
         [Required(ErrorMessage = "Đơn vị tính là bắt buộc")]
         [MaxLength(50)]
         public string Unit { get; set; }
+
+        [Range(0, int.MaxValue, ErrorMessage = "Định mức tối thiểu phải >= 0")]
+        public int MinQuantity { get; set; } = 0;
+
+        [Range(0, int.MaxValue, ErrorMessage = "Định mức tối đa phải >= 0")]
+        public int? MaxQuantity { get; set; }
     }
 }

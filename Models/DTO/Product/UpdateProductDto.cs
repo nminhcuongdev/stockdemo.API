@@ -17,5 +17,11 @@ namespace StockDemo.API.Models.DTO.Product
         public string Unit { get; set; }
 
         public bool? IsActive { get; set; }
+
+        [Range(0, int.MaxValue, ErrorMessage = "Định mức tối thiểu phải >= 0")]
+        public int? MinQuantity { get; set; }
+
+        [Range(0, int.MaxValue, ErrorMessage = "Định mức tối đa phải >= 0")]
+        public int? MaxQuantity { get; set; }
     }
 }

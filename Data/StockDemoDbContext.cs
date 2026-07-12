@@ -18,10 +18,64 @@ namespace StockDemo.API.Data
         public DbSet<StockIn> StockIns { get; set; }
         public DbSet<StockOut> StockOuts { get; set; }
         public DbSet<DeliveryOrder> DeliveryOrders { get; set; }
+        public DbSet<StockTransfer> StockTransfers { get; set; }
+        public DbSet<StockTake> StockTakes { get; set; }
+        public DbSet<StockTakeItem> StockTakeItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // A transfer references two locations; disable cascade delete to avoid
+            // SQL Server "multiple cascade paths" and to keep transfer history intact.
+            modelBuilder.Entity<StockTransfer>(entity =>
+            {
+                entity.HasOne(t => t.FromLocation)
+                    .WithMany()
+                    .HasForeignKey(t => t.FromLocationId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(t => t.ToLocation)
+                    .WithMany()
+                    .HasForeignKey(t => t.ToLocationId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(t => t.Product)
+                    .WithMany()
+                    .HasForeignKey(t => t.ProductId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(t => t.User)
+                    .WithMany()
+                    .HasForeignKey(t => t.CreatedBy)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<StockTake>(entity =>
+            {
+                entity.HasOne(s => s.Location)
+                    .WithMany()
+                    .HasForeignKey(s => s.LocationId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(s => s.User)
+                    .WithMany()
+                    .HasForeignKey(s => s.CreatedBy)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<StockTakeItem>(entity =>
+            {
+                entity.HasOne(i => i.StockTake)
+                    .WithMany(s => s.Items)
+                    .HasForeignKey(i => i.StockTakeId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(i => i.Product)
+                    .WithMany()
+                    .HasForeignKey(i => i.ProductId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
 
             // Seed Users
             modelBuilder.Entity<User>().HasData(
@@ -99,6 +153,8 @@ namespace StockDemo.API.Data
                 {
                     ProductId = 1,
                     ProductCode = "PRD001",
+                    MinQuantity = 45,
+                    MaxQuantity = 100,
                     ProductName = "Laptop Dell Inspiron 15",
                     Description = "Laptop văn phòng, màn hình 15.6 inch",
                     Unit = "Cái",
@@ -109,6 +165,7 @@ namespace StockDemo.API.Data
                 {
                     ProductId = 2,
                     ProductCode = "PRD002",
+                    MinQuantity = 50,
                     ProductName = "Chuột Logitech M331",
                     Description = "Chuột không dây, pin 24 tháng",
                     Unit = "Cái",
@@ -119,6 +176,7 @@ namespace StockDemo.API.Data
                 {
                     ProductId = 3,
                     ProductCode = "PRD003",
+                    MinQuantity = 20,
                     ProductName = "Bàn phím Mechanical K552",
                     Description = "Bàn phím cơ RGB, switch blue",
                     Unit = "Cái",
@@ -129,6 +187,7 @@ namespace StockDemo.API.Data
                 {
                     ProductId = 4,
                     ProductCode = "PRD004",
+                    MinQuantity = 40,
                     ProductName = "Màn hình LG 24 inch",
                     Description = "Màn hình Full HD, IPS",
                     Unit = "Cái",
@@ -139,6 +198,7 @@ namespace StockDemo.API.Data
                 {
                     ProductId = 5,
                     ProductCode = "PRD005",
+                    MinQuantity = 500,
                     ProductName = "USB Kingston 32GB",
                     Description = "USB 3.0, tốc độ cao",
                     Unit = "Cái",

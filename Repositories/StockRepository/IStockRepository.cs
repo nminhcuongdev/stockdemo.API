@@ -11,6 +11,13 @@ namespace StockDemo.API.Repositories.StockRepository
         Task<Stock> GetByQRCodeAsync(string qrCode);
         Task<Stock> GetStockWithDetailsAsync(int stockId);
         Task<IEnumerable<Stock>> GetAllStocksWithDetailsAsync();
-        Task<bool> UpdateQuantityAsync(int stockId, int quantity);
+        /// <summary>Adds <paramref name="amount"/> to the on-hand quantity (stock-in).</summary>
+        Task<bool> IncreaseQuantityAsync(int stockId, int amount);
+
+        /// <summary>Subtracts <paramref name="amount"/> from the on-hand quantity (stock-out). Caller must validate sufficiency.</summary>
+        Task<bool> DecreaseQuantityAsync(int stockId, int amount);
+
+        /// <summary>Sets the on-hand quantity to an absolute value (stocktake reconciliation).</summary>
+        Task<bool> SetQuantityAsync(int stockId, int quantity);
     }
 }

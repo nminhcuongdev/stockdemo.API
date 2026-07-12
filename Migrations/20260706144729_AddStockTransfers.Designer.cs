@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StockDemo.API.Data;
 
@@ -11,9 +12,11 @@ using StockDemo.API.Data;
 namespace StockDemo.API.Migrations
 {
     [DbContext(typeof(StockDemoDbContext))]
-    partial class StockDemoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260706144729_AddStockTransfers")]
+    partial class AddStockTransfers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -187,12 +190,6 @@ namespace StockDemo.API.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<int?>("MaxQuantity")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MinQuantity")
-                        .HasColumnType("int");
-
                     b.Property<string>("ProductCode")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -222,8 +219,6 @@ namespace StockDemo.API.Migrations
                             CreatedDate = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Laptop văn phòng, màn hình 15.6 inch",
                             IsActive = true,
-                            MaxQuantity = 100,
-                            MinQuantity = 45,
                             ProductCode = "PRD001",
                             ProductName = "Laptop Dell Inspiron 15",
                             Unit = "Cái"
@@ -234,7 +229,6 @@ namespace StockDemo.API.Migrations
                             CreatedDate = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Chuột không dây, pin 24 tháng",
                             IsActive = true,
-                            MinQuantity = 50,
                             ProductCode = "PRD002",
                             ProductName = "Chuột Logitech M331",
                             Unit = "Cái"
@@ -245,7 +239,6 @@ namespace StockDemo.API.Migrations
                             CreatedDate = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Bàn phím cơ RGB, switch blue",
                             IsActive = true,
-                            MinQuantity = 20,
                             ProductCode = "PRD003",
                             ProductName = "Bàn phím Mechanical K552",
                             Unit = "Cái"
@@ -256,7 +249,6 @@ namespace StockDemo.API.Migrations
                             CreatedDate = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Màn hình Full HD, IPS",
                             IsActive = true,
-                            MinQuantity = 40,
                             ProductCode = "PRD004",
                             ProductName = "Màn hình LG 24 inch",
                             Unit = "Cái"
@@ -267,7 +259,6 @@ namespace StockDemo.API.Migrations
                             CreatedDate = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "USB 3.0, tốc độ cao",
                             IsActive = true,
-                            MinQuantity = 500,
                             ProductCode = "PRD005",
                             ProductName = "USB Kingston 32GB",
                             Unit = "Cái"
@@ -498,76 +489,6 @@ namespace StockDemo.API.Migrations
                         });
                 });
 
-            modelBuilder.Entity("StockDemo.API.Models.Domain.StockTake", b =>
-                {
-                    b.Property<int>("StockTakeId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StockTakeId"));
-
-                    b.Property<DateTime?>("CompletedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("CreatedBy")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("LocationId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("StockTakeId");
-
-                    b.HasIndex("CreatedBy");
-
-                    b.HasIndex("LocationId");
-
-                    b.ToTable("StockTakes");
-                });
-
-            modelBuilder.Entity("StockDemo.API.Models.Domain.StockTakeItem", b =>
-                {
-                    b.Property<int>("StockTakeItemId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StockTakeItemId"));
-
-                    b.Property<int>("CountedQuantity")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("StockTakeId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SystemQuantity")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Variance")
-                        .HasColumnType("int");
-
-                    b.HasKey("StockTakeItemId");
-
-                    b.HasIndex("ProductId");
-
-                    b.HasIndex("StockTakeId");
-
-                    b.ToTable("StockTakeItems");
-                });
-
             modelBuilder.Entity("StockDemo.API.Models.Domain.StockTransfer", b =>
                 {
                     b.Property<int>("StockTransferId")
@@ -770,44 +691,6 @@ namespace StockDemo.API.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("StockDemo.API.Models.Domain.StockTake", b =>
-                {
-                    b.HasOne("StockDemo.API.Models.Domain.User", "User")
-                        .WithMany()
-                        .HasForeignKey("CreatedBy")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("StockDemo.API.Models.Domain.Location", "Location")
-                        .WithMany()
-                        .HasForeignKey("LocationId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Location");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("StockDemo.API.Models.Domain.StockTakeItem", b =>
-                {
-                    b.HasOne("StockDemo.API.Models.Domain.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("StockDemo.API.Models.Domain.StockTake", "StockTake")
-                        .WithMany("Items")
-                        .HasForeignKey("StockTakeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Product");
-
-                    b.Navigation("StockTake");
-                });
-
             modelBuilder.Entity("StockDemo.API.Models.Domain.StockTransfer", b =>
                 {
                     b.HasOne("StockDemo.API.Models.Domain.User", "User")
@@ -861,11 +744,6 @@ namespace StockDemo.API.Migrations
                     b.Navigation("StockOuts");
 
                     b.Navigation("Stocks");
-                });
-
-            modelBuilder.Entity("StockDemo.API.Models.Domain.StockTake", b =>
-                {
-                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("StockDemo.API.Models.Domain.User", b =>

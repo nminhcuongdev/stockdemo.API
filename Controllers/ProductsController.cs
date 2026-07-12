@@ -147,6 +147,12 @@ namespace StockDemo.API.Controllers
             if (updateProductDto.IsActive.HasValue)
                 product.IsActive = updateProductDto.IsActive.Value;
 
+            if (updateProductDto.MinQuantity.HasValue)
+                product.MinQuantity = updateProductDto.MinQuantity.Value;
+
+            if (updateProductDto.MaxQuantity.HasValue)
+                product.MaxQuantity = updateProductDto.MaxQuantity.Value;
+
             product.UpdatedDate = DateTime.Now;
 
             await productRepository.UpdateAsync(product);

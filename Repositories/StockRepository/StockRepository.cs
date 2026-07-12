@@ -59,22 +59,41 @@ namespace StockDemo.API.Repositories.StockRepository
                 .ToListAsync();
         }
 
-        public async Task<bool> UpdateQuantityAsync(int stockId, int quantity)
+        public async Task<bool> IncreaseQuantityAsync(int stockId, int amount)
         {
             var stock = await GetByIdAsync(stockId);
             if (stock == null)
                 return false;
 
-            if (stock.Quantity == quantity)
-            {
-                await DeleteAsync(stockId); // Xóa bản ghi
-            } else
-            {
-                stock.Quantity = stock.Quantity - quantity;
-                stock.LastUpdated = DateTime.Now;
-                await UpdateAsync(stock);
-            }
-           
+            stock.Quantity += amount;
+            stock.LastUpdated = DateTime.Now;
+            await UpdateAsync(stock);
+            return true;
+        }
+
+        public async Task<bool> DecreaseQuantityAsync(int stockId, int amount)
+        {
+            var stock = await GetByIdAsync(stockId);
+            if (stock == null)
+                return false;
+
+            // Keep the stock row (even at zero) so the product/location placement
+            // is preserved for reporting and future stock-in.
+            stock.Quantity -= amount;
+            stock.LastUpdated = DateTime.Now;
+            await UpdateAsync(stock);
+            return true;
+        }
+
+        public async Task<bool> SetQuantityAsync(int stockId, int quantity)
+        {
+            var stock = await GetByIdAsync(stockId);
+            if (stock == null)
+                return false;
+
+            stock.Quantity = quantity;
+            stock.LastUpdated = DateTime.Now;
+            await UpdateAsync(stock);
             return true;
         }
     }

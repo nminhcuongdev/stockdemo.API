@@ -27,6 +27,12 @@ namespace StockDemo.API.Models.Domain
 
         public bool IsActive { get; set; } = true;
 
+        // Reorder level: alert when total on-hand quantity drops below this. 0 = no alert.
+        public int MinQuantity { get; set; } = 0;
+
+        // Optional maximum stock level (over-stock reference).
+        public int? MaxQuantity { get; set; }
+
         public DateTime CreatedDate { get; set; } = DateTime.Now;
 
         public DateTime? UpdatedDate { get; set; }

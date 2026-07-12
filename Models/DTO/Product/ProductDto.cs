@@ -8,6 +8,8 @@
         public string Description { get; set; }
         public string Unit { get; set; }
         public bool IsActive { get; set; }
+        public int MinQuantity { get; set; }
+        public int? MaxQuantity { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime? UpdatedDate { get; set; }
     }

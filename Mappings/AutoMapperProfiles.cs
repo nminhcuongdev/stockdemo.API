@@ -26,6 +26,11 @@ namespace StockDemo.API.Mappings
             CreateMap<Stock, StockOut>().ReverseMap();
             CreateMap<StockOutDto, StockOut>().ReverseMap();
 
+            CreateMap<StockTransfer, StockTransferDto>().ReverseMap();
+
+            CreateMap<StockTake, StockTakeDto>().ReverseMap();
+            CreateMap<StockTakeItem, StockTakeItemDto>().ReverseMap();
+
             CreateMap<Product, ProductDto>().ReverseMap();
             CreateMap<Location, LocationDto>().ReverseMap();
 

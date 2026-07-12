@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using StockDemo.API.Data;
 using StockDemo.API.Models;
 using StockDemo.API.Models.Domain;
 using StockDemo.API.Models.DTO.Stock;
@@ -21,13 +22,15 @@ namespace StockDemo.API.Controllers
         private readonly IStockInRepository stockInRepository;
         private readonly IStockOutRepository stockOutRepository;
         private readonly IMapper mapper;
+        private readonly StockDemoDbContext dbContext;
 
-        public StocksController(IStockRepository stockRepository, IStockInRepository stockInRepository, IStockOutRepository stockOutRepository, IMapper mapper)
+        public StocksController(IStockRepository stockRepository, IStockInRepository stockInRepository, IStockOutRepository stockOutRepository, IMapper mapper, StockDemoDbContext dbContext)
         {
             this.stockRepository = stockRepository;
             this.stockInRepository = stockInRepository;
             this.stockOutRepository = stockOutRepository;
             this.mapper = mapper;
+            this.dbContext = dbContext;
         }
 
         // GET: api/stocks
@@ -121,41 +124,49 @@ namespace StockDemo.API.Controllers
                 ));
             }
 
-            // Check có tồn tại trong Stock không
-            var stock = await stockRepository.GetByQRCodeAsync(createStockDto.QRCode);
-
-            var stockModel = mapper.Map<Stock>(createStockDto);
-
-            if (stock == null)
+            if (createStockDto.Quantity <= 0)
             {
-                // Không tồn tại => Insert
-                var createdStock = await stockRepository.AddAsync(stockModel);
+                return BadRequest(ApiResponse<object>.ErrorResult("Số lượng nhập phải lớn hơn 0"));
             }
-            else
-            {
-                // Có tồn tại => Update
-                var success = await stockRepository.UpdateQuantityAsync(stock.StockId, createStockDto.Quantity);
 
-                if (!success)
+            // Cập nhật tồn kho và ghi phiếu nhập trong cùng một transaction để đảm bảo nguyên tử.
+            await using var transaction = await dbContext.Database.BeginTransactionAsync();
+            try
+            {
+                // Đã có tồn kho cho QR này => cộng dồn số lượng; chưa có => tạo mới.
+                var stock = await stockRepository.GetByQRCodeAsync(createStockDto.QRCode);
+                if (stock == null)
                 {
-                    return NotFound(ApiResponse<object>.ErrorResult("Không tìm thấy tồn kho"));
+                    var stockModel = mapper.Map<Stock>(createStockDto);
+                    await stockRepository.AddAsync(stockModel);
+                }
+                else
+                {
+                    await stockRepository.IncreaseQuantityAsync(stock.StockId, createStockDto.Quantity);
                 }
 
+                // Ghi phiếu nhập
+                var stockIn = mapper.Map<StockIn>(createStockDto);
+                stockIn.CreatedBy = createStockDto.UserId;
+                stockIn.CreatedDate = DateTime.Now;
+
+                var createdStockIn = await stockInRepository.AddAsync(stockIn);
+
+                await transaction.CommitAsync();
+
+                var stockInDto = mapper.Map<StockInDto>(await stockInRepository.GetStockInWithDetailsAsync(createdStockIn.StockInId));
+
+                return CreatedAtAction(
+                    nameof(GetById),
+                    new { id = createdStockIn.StockInId },
+                    ApiResponse<StockInDto>.SuccessResult(stockInDto, "Tạo phiếu nhập thành công")
+                );
             }
-
-            // Insert vào stockin
-            var stockIn = mapper.Map<StockIn>(createStockDto);
-            stockIn.CreatedBy = createStockDto.UserId;
-            stockIn.CreatedDate = DateTime.Now;
-
-            var createdStockIn = await stockInRepository.AddAsync(stockIn);
-            var stockInDto = mapper.Map<StockInDto>(await stockInRepository.GetStockInWithDetailsAsync(createdStockIn.StockInId));
-
-            return CreatedAtAction(
-                nameof(GetById),
-                new { id = createdStockIn.StockInId },
-                ApiResponse<StockInDto>.SuccessResult(stockInDto, "Tạo phiếu nhập thành công")
-            );
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(500, ApiResponse<object>.ErrorResult("Nhập kho thất bại, đã hoàn tác thay đổi"));
+            }
         }
 
 
@@ -208,28 +219,47 @@ namespace StockDemo.API.Controllers
                 return NotFound(ApiResponse<StockDto>.ErrorResult("Không tìm thấy tồn kho"));
             }
 
-            var success = await stockRepository.UpdateQuantityAsync(id, updateQuantityDto.Quantity);
-
-            if (!success)
+            if (updateQuantityDto.Quantity <= 0)
             {
-                return NotFound(ApiResponse<object>.ErrorResult("Không tìm thấy tồn kho"));
+                return BadRequest(ApiResponse<object>.ErrorResult("Số lượng xuất phải lớn hơn 0"));
             }
 
+            // Không cho xuất vượt quá tồn kho hiện có.
+            if (updateQuantityDto.Quantity > stock.Quantity)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResult(
+                    $"Số lượng xuất ({updateQuantityDto.Quantity}) vượt quá tồn kho hiện tại ({stock.Quantity})"));
+            }
 
-            // Insert vào Stock Out
-            var stockOut = mapper.Map<StockOut>(stock);
-            stockOut.Quantity = updateQuantityDto.Quantity;
-            stockOut.CreatedBy = updateQuantityDto.CreatedBy;
-            stockOut.CreatedDate = DateTime.Now;
+            // Trừ tồn kho và ghi phiếu xuất trong cùng một transaction.
+            await using var transaction = await dbContext.Database.BeginTransactionAsync();
+            try
+            {
+                await stockRepository.DecreaseQuantityAsync(id, updateQuantityDto.Quantity);
 
-            var createdStockOut = await stockOutRepository.AddAsync(stockOut);
-            var stockOutDto = mapper.Map<StockOutDto>(await stockOutRepository.GetStockOutWithDetailsAsync(createdStockOut.StockOutId));
+                // Ghi phiếu xuất
+                var stockOut = mapper.Map<StockOut>(stock);
+                stockOut.Quantity = updateQuantityDto.Quantity;
+                stockOut.CreatedBy = updateQuantityDto.CreatedBy;
+                stockOut.CreatedDate = DateTime.Now;
 
-            return CreatedAtAction(
-                nameof(GetById),
-                new { id = createdStockOut.StockOutId },
-                ApiResponse<StockOutDto>.SuccessResult(stockOutDto, "Tạo phiếu xuất thành công")
-            );
+                var createdStockOut = await stockOutRepository.AddAsync(stockOut);
+
+                await transaction.CommitAsync();
+
+                var stockOutDto = mapper.Map<StockOutDto>(await stockOutRepository.GetStockOutWithDetailsAsync(createdStockOut.StockOutId));
+
+                return CreatedAtAction(
+                    nameof(GetById),
+                    new { id = createdStockOut.StockOutId },
+                    ApiResponse<StockOutDto>.SuccessResult(stockOutDto, "Tạo phiếu xuất thành công")
+                );
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(500, ApiResponse<object>.ErrorResult("Xuất kho thất bại, đã hoàn tác thay đổi"));
+            }
         }
 
         // DELETE: api/stocks/{id}
