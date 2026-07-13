@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StockDemo.API.Data;
 
@@ -11,9 +12,11 @@ using StockDemo.API.Data;
 namespace StockDemo.API.Migrations
 {
     [DbContext(typeof(StockDemoDbContext))]
-    partial class StockDemoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260713074130_AddEpcMappings")]
+    partial class AddEpcMappings
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -119,56 +122,6 @@ namespace StockDemo.API.Migrations
                     b.HasIndex("StockId");
 
                     b.ToTable("EpcMappings");
-
-                    b.HasData(
-                        new
-                        {
-                            Epc = "A00000000000000000000250",
-                            MappedDate = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            StockId = 1
-                        },
-                        new
-                        {
-                            Epc = "A00000000000000000000251",
-                            MappedDate = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            StockId = 3
-                        },
-                        new
-                        {
-                            Epc = "A00000000000000000000252",
-                            MappedDate = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            StockId = 2
-                        },
-                        new
-                        {
-                            Epc = "A00000000000000000000253",
-                            MappedDate = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            StockId = 4
-                        },
-                        new
-                        {
-                            Epc = "A00000000000000000000264",
-                            MappedDate = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            StockId = 1
-                        },
-                        new
-                        {
-                            Epc = "A00000000000000000000265",
-                            MappedDate = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            StockId = 2
-                        },
-                        new
-                        {
-                            Epc = "A00000000000000000000266",
-                            MappedDate = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            StockId = 4
-                        },
-                        new
-                        {
-                            Epc = "A00000000000000000000267",
-                            MappedDate = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            StockId = 3
-                        });
                 });
 
             modelBuilder.Entity("StockDemo.API.Models.Domain.Location", b =>

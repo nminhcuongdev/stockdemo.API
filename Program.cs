@@ -5,6 +5,7 @@ using Microsoft.OpenApi.Models;
 using StockDemo.API.Data;
 using StockDemo.API.Mappings;
 using StockDemo.API.Repositories.DeliveryOderRepository;
+using StockDemo.API.Repositories.EpcMappingRepository;
 using StockDemo.API.Repositories.LocationRepository;
 using StockDemo.API.Repositories.ProductRepository;
 using StockDemo.API.Repositories.StockInRepository;
@@ -68,6 +69,7 @@ builder.Services.AddScoped<IStockTakeRepository, StockTakeRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IDeliveryOrderRepository, DeliveryOrderRepository>();
 builder.Services.AddScoped<ILocationRepository, LocationRepository>();
+builder.Services.AddScoped<IEpcMappingRepository, EpcMappingRepository>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));

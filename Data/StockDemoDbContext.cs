@@ -21,6 +21,7 @@ namespace StockDemo.API.Data
         public DbSet<StockTransfer> StockTransfers { get; set; }
         public DbSet<StockTake> StockTakes { get; set; }
         public DbSet<StockTakeItem> StockTakeItems { get; set; }
+        public DbSet<EpcMapping> EpcMappings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -76,6 +77,19 @@ namespace StockDemo.API.Data
                     .HasForeignKey(i => i.ProductId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
+
+            // Seed EPC mappings: physical RFID tags (EPC = 'A' + 20 zeros + 3 digits)
+            // paired with existing seeded stocks (StockId 1..4), assigned at random.
+            modelBuilder.Entity<EpcMapping>().HasData(
+                new EpcMapping { Epc = "A00000000000000000000250", StockId = 1, MappedDate = new DateTime(2024, 1, 1) },
+                new EpcMapping { Epc = "A00000000000000000000251", StockId = 3, MappedDate = new DateTime(2024, 1, 1) },
+                new EpcMapping { Epc = "A00000000000000000000252", StockId = 2, MappedDate = new DateTime(2024, 1, 1) },
+                new EpcMapping { Epc = "A00000000000000000000253", StockId = 4, MappedDate = new DateTime(2024, 1, 1) },
+                new EpcMapping { Epc = "A00000000000000000000264", StockId = 1, MappedDate = new DateTime(2024, 1, 1) },
+                new EpcMapping { Epc = "A00000000000000000000265", StockId = 2, MappedDate = new DateTime(2024, 1, 1) },
+                new EpcMapping { Epc = "A00000000000000000000266", StockId = 4, MappedDate = new DateTime(2024, 1, 1) },
+                new EpcMapping { Epc = "A00000000000000000000267", StockId = 3, MappedDate = new DateTime(2024, 1, 1) }
+            );
 
             // Seed Users
             modelBuilder.Entity<User>().HasData(
