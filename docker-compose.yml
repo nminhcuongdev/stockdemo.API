@@ -31,8 +31,12 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__StockDemoConnectionString: "Server=sqlserver;Database=StockDemoDB;User Id=sa;Password=YourStrong@Passw0rd123;TrustServerCertificate=True;MultipleActiveResultSets=true;"
+      # Firebase service-account key for FCM push notifications (file mounted below, git-ignored).
+      GOOGLE_APPLICATION_CREDENTIALS: /app/firebase-sa.json
     ports:
       - "5000:8080"
+    volumes:
+      - ./firebase-sa.json:/app/firebase-sa.json:ro
     depends_on:
       sqlserver:
         condition: service_healthy

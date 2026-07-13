@@ -8,6 +8,7 @@ using StockDemo.API.Models.DTO.Stock;
 using StockDemo.API.Repositories.LocationRepository;
 using StockDemo.API.Repositories.StockRepository;
 using StockDemo.API.Repositories.StockTakeRepository;
+using StockDemo.API.Services;
 
 namespace StockDemo.API.Controllers
 {
@@ -21,19 +22,22 @@ namespace StockDemo.API.Controllers
         private readonly ILocationRepository locationRepository;
         private readonly IMapper mapper;
         private readonly StockDemoDbContext dbContext;
+        private readonly LowStockAlertService lowStockAlertService;
 
         public StockTakesController(
             IStockTakeRepository stockTakeRepository,
             IStockRepository stockRepository,
             ILocationRepository locationRepository,
             IMapper mapper,
-            StockDemoDbContext dbContext)
+            StockDemoDbContext dbContext,
+            LowStockAlertService lowStockAlertService)
         {
             this.stockTakeRepository = stockTakeRepository;
             this.stockRepository = stockRepository;
             this.locationRepository = locationRepository;
             this.mapper = mapper;
             this.dbContext = dbContext;
+            this.lowStockAlertService = lowStockAlertService;
         }
 
         // GET: api/stocktakes
@@ -153,6 +157,9 @@ namespace StockDemo.API.Controllers
                 await stockTakeRepository.UpdateAsync(session);
 
                 await transaction.CommitAsync();
+
+                // Reconciliation may have reduced stock below reorder level; notify (non-blocking).
+                lowStockAlertService.QueueCheck();
 
                 var dto = mapper.Map<StockTakeDto>(await stockTakeRepository.GetWithDetailsAsync(id));
                 return Ok(ApiResponse<StockTakeDto>.SuccessResult(dto, "Đối chiếu & điều chỉnh tồn kho thành công"));

@@ -8,6 +8,7 @@ using StockDemo.API.Models.DTO.Stock;
 using StockDemo.API.Repositories.StockInRepository;
 using StockDemo.API.Repositories.StockOutRepository;
 using StockDemo.API.Repositories.StockRepository;
+using StockDemo.API.Services;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -23,14 +24,16 @@ namespace StockDemo.API.Controllers
         private readonly IStockOutRepository stockOutRepository;
         private readonly IMapper mapper;
         private readonly StockDemoDbContext dbContext;
+        private readonly LowStockAlertService lowStockAlertService;
 
-        public StocksController(IStockRepository stockRepository, IStockInRepository stockInRepository, IStockOutRepository stockOutRepository, IMapper mapper, StockDemoDbContext dbContext)
+        public StocksController(IStockRepository stockRepository, IStockInRepository stockInRepository, IStockOutRepository stockOutRepository, IMapper mapper, StockDemoDbContext dbContext, LowStockAlertService lowStockAlertService)
         {
             this.stockRepository = stockRepository;
             this.stockInRepository = stockInRepository;
             this.stockOutRepository = stockOutRepository;
             this.mapper = mapper;
             this.dbContext = dbContext;
+            this.lowStockAlertService = lowStockAlertService;
         }
 
         // GET: api/stocks
@@ -246,6 +249,9 @@ namespace StockDemo.API.Controllers
                 var createdStockOut = await stockOutRepository.AddAsync(stockOut);
 
                 await transaction.CommitAsync();
+
+                // Stock reduced -> may have crossed below reorder level; notify (non-blocking).
+                lowStockAlertService.QueueCheck();
 
                 var stockOutDto = mapper.Map<StockOutDto>(await stockOutRepository.GetStockOutWithDetailsAsync(createdStockOut.StockOutId));
 

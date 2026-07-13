@@ -13,6 +13,7 @@ using StockDemo.API.Repositories.StockOutRepository;
 using StockDemo.API.Repositories.StockRepository;
 using StockDemo.API.Repositories.StockTakeRepository;
 using StockDemo.API.Repositories.StockTransferRepository;
+using StockDemo.API.Repositories.DeviceTokenRepository;
 using StockDemo.API.Repositories.UserRepository;
 using StockDemo.API.Services;
 using System.Linq;
@@ -70,7 +71,13 @@ builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IDeliveryOrderRepository, DeliveryOrderRepository>();
 builder.Services.AddScoped<ILocationRepository, LocationRepository>();
 builder.Services.AddScoped<IEpcMappingRepository, EpcMappingRepository>();
+builder.Services.AddScoped<IDeviceTokenRepository, DeviceTokenRepository>();
 builder.Services.AddScoped<IJwtService, JwtService>();
+
+// Push-notification services for low-stock alerts (FCM).
+builder.Services.AddSingleton<IFcmService, FcmService>();
+builder.Services.AddSingleton<LowStockAlertService>();
+builder.Services.AddHostedService<LowStockScheduledService>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
 

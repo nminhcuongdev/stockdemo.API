@@ -8,6 +8,10 @@ out/
 appsettings.Development.json
 appsettings.Local.json
 *.secrets.json
+
+# Firebase service-account private key — NEVER commit
+firebase-sa.json
+*firebase-adminsdk*.json
 project.lock.json
 project.fragment.lock.json
 artifacts/

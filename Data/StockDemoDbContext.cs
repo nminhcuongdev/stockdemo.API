@@ -22,6 +22,7 @@ namespace StockDemo.API.Data
         public DbSet<StockTake> StockTakes { get; set; }
         public DbSet<StockTakeItem> StockTakeItems { get; set; }
         public DbSet<EpcMapping> EpcMappings { get; set; }
+        public DbSet<DeviceToken> DeviceTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
