@@ -35,6 +35,7 @@ namespace StockDemo.API.Controllers
             {
                 existing.UserId = dto.UserId ?? existing.UserId;
                 existing.Platform = dto.Platform ?? existing.Platform;
+                existing.Locale = dto.Locale ?? existing.Locale;
                 existing.LastSeen = DateTime.Now;
                 await deviceTokenRepository.UpdateAsync(existing);
             }
@@ -45,6 +46,7 @@ namespace StockDemo.API.Controllers
                     Token = dto.Token,
                     UserId = dto.UserId,
                     Platform = dto.Platform ?? "android",
+                    Locale = dto.Locale,
                     CreatedDate = DateTime.Now,
                     LastSeen = DateTime.Now
                 });

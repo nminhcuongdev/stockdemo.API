@@ -14,11 +14,6 @@ namespace StockDemo.API.Repositories.DeviceTokenRepository
             return await _dbSet.FirstOrDefaultAsync(t => t.Token == token);
         }
 
-        public async Task<List<string>> GetAllTokensAsync()
-        {
-            return await _dbSet.Select(t => t.Token).ToListAsync();
-        }
-
         public async Task RemoveByTokensAsync(IEnumerable<string> tokens)
         {
             var toRemove = await _dbSet.Where(t => tokens.Contains(t.Token)).ToListAsync();

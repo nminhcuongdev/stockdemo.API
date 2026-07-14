@@ -12,5 +12,8 @@ namespace StockDemo.API.Models.DTO.Device
 
         [MaxLength(20)]
         public string? Platform { get; set; }
+
+        [MaxLength(10)]
+        public string? Locale { get; set; }
     }
 }

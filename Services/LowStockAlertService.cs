@@ -75,20 +75,24 @@ namespace StockDemo.API.Services
                 }
 
                 var deviceRepo = scope.ServiceProvider.GetRequiredService<IDeviceTokenRepository>();
-                var tokens = await deviceRepo.GetAllTokensAsync();
-                if (tokens.Count == 0)
+                var devices = await deviceRepo.GetAllAsync();
+                if (!devices.Any())
                 {
                     foreach (var item in newlyLow) notifiedProductIds.Add(item.ProductId);
                     return;
                 }
 
-                var title = "Cảnh báo tồn thấp";
-                var body = newlyLow.Count == 1
-                    ? $"{newlyLow[0].Name} còn {newlyLow[0].Current} (định mức {newlyLow[0].Min})"
-                    : $"{newlyLow.Count} sản phẩm dưới định mức: " + string.Join(", ", newlyLow.Take(3).Select(x => x.Name));
-
-                var invalid = await fcm.SendAsync(tokens, title, body,
-                    new Dictionary<string, string> { ["type"] = "low_stock", ["count"] = newlyLow.Count.ToString() });
+                var invalid = new List<string>();
+                foreach (var group in devices.GroupBy(d => NormalizeLocale(d.Locale)))
+                {
+                    var (title, body) = BuildMessage(group.Key, newlyLow);
+                    var groupInvalid = await fcm.SendAsync(
+                        group.Select(d => d.Token).ToList(),
+                        title,
+                        body,
+                        new Dictionary<string, string> { ["type"] = "low_stock", ["count"] = newlyLow.Count.ToString() });
+                    invalid.AddRange(groupInvalid);
+                }
 
                 if (invalid.Count > 0)
                 {
@@ -111,6 +115,30 @@ namespace StockDemo.API.Services
         public void QueueCheck()
         {
             _ = Task.Run(CheckAndNotifyAsync);
+        }
+
+        private static string NormalizeLocale(string? locale)
+        {
+            return string.Equals(locale, "en", StringComparison.OrdinalIgnoreCase) ? "en" : "vi";
+        }
+
+        private static (string Title, string Body) BuildMessage(
+            string locale, List<(int ProductId, string Name, int Current, int Min)> items)
+        {
+            if (locale == "en")
+            {
+                var title = "Low stock alert";
+                var body = items.Count == 1
+                    ? $"{items[0].Name}: {items[0].Current} left (min {items[0].Min})"
+                    : $"{items.Count} products below minimum: " + string.Join(", ", items.Take(3).Select(x => x.Name));
+                return (title, body);
+            }
+
+            var viTitle = "Cảnh báo tồn thấp";
+            var viBody = items.Count == 1
+                ? $"{items[0].Name} còn {items[0].Current} (định mức {items[0].Min})"
+                : $"{items.Count} sản phẩm dưới định mức: " + string.Join(", ", items.Take(3).Select(x => x.Name));
+            return (viTitle, viBody);
         }
     }
 }
