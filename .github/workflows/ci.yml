@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    name: Build & test (.NET 8)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      # There is no .sln; the test project references the web project, so restoring
+      # the test project pulls in both.
+      - name: Restore
+        run: dotnet restore StockDemo.API.Tests/StockDemo.API.Tests.csproj
+
+      - name: Build
+        run: dotnet build StockDemo.API.Tests/StockDemo.API.Tests.csproj --configuration Release --no-restore
+
+      - name: Test
+        run: >
+          dotnet test StockDemo.API.Tests/StockDemo.API.Tests.csproj
+          --configuration Release
+          --no-build
+          --logger "trx;LogFileName=test-results.trx"
+          --results-directory TestResults
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dotnet-test-results
+          path: TestResults/*.trx
+
+  docker:
+    name: Docker image builds
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Build only — the image is never pushed, and no Firebase credentials are
+      # needed because GOOGLE_APPLICATION_CREDENTIALS is supplied at runtime.
+      - name: Build API image
+        run: docker build -f Dockerfile -t stockdemo-api:ci .

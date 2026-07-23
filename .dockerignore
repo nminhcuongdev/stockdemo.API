@@ -1,0 +1,24 @@
+# Keep secrets out of the image. The Dockerfile does `COPY . ./StockDemo.API`,
+# so without this a local build would bake the Firebase private key into a layer.
+# (At runtime the key is mounted and pointed at by GOOGLE_APPLICATION_CREDENTIALS.)
+firebase-sa.json
+*firebase-adminsdk*.json
+appsettings.Development.json
+appsettings.Local.json
+*.secrets.json
+secrets.json
+
+# Build output — restored inside the image instead.
+bin/
+obj/
+**/bin/
+**/obj/
+
+# Not needed to build the app.
+.git/
+.github/
+.vs/
+StockDemo.API.Tests/
+docker-compose.yml
+README.md
+*.user

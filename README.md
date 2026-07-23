@@ -1,5 +1,7 @@
 # StockDemo API — Warehouse Management Backend
 
+[![CI](https://github.com/nminhcuongdev/stockdemo.API/actions/workflows/ci.yml/badge.svg)](https://github.com/nminhcuongdev/stockdemo.API/actions/workflows/ci.yml)
+
 A REST API built with **.NET 8.0**, **Entity Framework Core**, and **SQL Server**. It powers the
 StockDemo Android app: products, stock, warehouse operations, reporting, and RFID tag mapping.
 
