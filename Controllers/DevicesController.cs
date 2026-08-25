@@ -23,13 +23,6 @@ namespace StockDemo.API.Controllers
         [HttpPost("register-token")]
         public async Task<IActionResult> RegisterToken([FromBody] RegisterDeviceTokenDto dto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ApiResponse<object>.ErrorResult(
-                    "Dữ liệu không hợp lệ",
-                    ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()));
-            }
-
             var existing = await deviceTokenRepository.GetByTokenAsync(dto.Token);
             if (existing != null)
             {

@@ -91,14 +91,6 @@ namespace StockDemo.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateStockInDto createStockInDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ApiResponse<StockInDto>.ErrorResult(
-                    "Dữ liệu không hợp lệ",
-                    ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()
-                ));
-            }
-
             var stockIn = mapper.Map<StockIn>(createStockInDto);
             stockIn.CreatedDate = DateTime.Now;
 
@@ -116,14 +108,6 @@ namespace StockDemo.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateStockInDto updateStockInDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ApiResponse<StockInDto>.ErrorResult(
-                    "Dữ liệu không hợp lệ",
-                    ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()
-                ));
-            }
-
             var stockIn = await stockInRepository.GetByIdAsync(id);
 
             if (stockIn == null)

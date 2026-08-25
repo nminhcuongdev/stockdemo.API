@@ -92,41 +92,9 @@ namespace StockDemo.API.Controllers
         }
 
         // POST: api/stocks
-        //[HttpPost]
-        //public async Task<IActionResult> Create([FromBody] CreateStockDto createStockDto)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(ApiResponse<StockDto>.ErrorResult(
-        //            "Dữ liệu không hợp lệ",
-        //            ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()
-        //        ));
-        //    }
-
-        //    var stock = mapper.Map<Stock>(createStockDto);
-        //    stock.LastUpdated = DateTime.Now;
-
-        //    var createdStock = await stockRepository.AddAsync(stock);
-        //    var stockDto = mapper.Map<StockDto>(await stockRepository.GetStockWithDetailsAsync(createdStock.StockId));
-
-        //    return CreatedAtAction(
-        //        nameof(GetById),
-        //        new { id = createdStock.StockId },
-        //        ApiResponse<StockDto>.SuccessResult(stockDto, "Tạo tồn kho thành công")
-        //    );
-        //}
-
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateStockDto createStockDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ApiResponse<StockDto>.ErrorResult(
-                    "Dữ liệu không hợp lệ",
-                    ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()
-                ));
-            }
-
             if (createStockDto.Quantity <= 0)
             {
                 return BadRequest(ApiResponse<object>.ErrorResult("Số lượng nhập phải lớn hơn 0"));
@@ -172,20 +140,10 @@ namespace StockDemo.API.Controllers
             }
         }
 
-
-
         // PUT: api/stocks/{id}
         [HttpPut("{id}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateStockDto updateStockDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ApiResponse<StockDto>.ErrorResult(
-                    "Dữ liệu không hợp lệ",
-                    ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()
-                ));
-            }
-
             var stock = await stockRepository.GetByIdAsync(id);
 
             if (stock == null)

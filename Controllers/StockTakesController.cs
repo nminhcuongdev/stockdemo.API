@@ -67,14 +67,6 @@ namespace StockDemo.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateStockTakeDto createDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ApiResponse<StockTakeDto>.ErrorResult(
-                    "Dữ liệu không hợp lệ",
-                    ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()
-                ));
-            }
-
             var location = await locationRepository.GetByIdAsync(createDto.LocationId);
             if (location == null)
             {

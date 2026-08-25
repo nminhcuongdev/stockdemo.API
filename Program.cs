@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using StockDemo.API.Data;
 using StockDemo.API.Mappings;
+using StockDemo.API.Models;
 using StockDemo.API.Repositories.DeliveryOderRepository;
 using StockDemo.API.Repositories.EpcMappingRepository;
 using StockDemo.API.Repositories.LocationRepository;
@@ -25,6 +27,25 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
+
+// [ApiController] tự động trả 400 khi model không hợp lệ, nhưng mặc định dùng định dạng
+// RFC 7807 ProblemDetails ({ title, status, errors: { field: [...] } }) — khác với
+// ApiResponse<T> mà client Android parse. Ghi đè factory để mọi lỗi validation cũng
+// trả về đúng một định dạng duy nhất, nhờ đó các controller không cần tự kiểm tra
+// ModelState nữa.
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        var errors = context.ModelState.Values
+            .SelectMany(v => v.Errors.Select(e => e.ErrorMessage))
+            .ToList();
+
+        return new BadRequestObjectResult(
+            ApiResponse<object>.ErrorResult("Dữ liệu không hợp lệ", errors));
+    };
+});
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>

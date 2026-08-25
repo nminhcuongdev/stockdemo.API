@@ -117,14 +117,6 @@ namespace StockDemo.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateDeliveryOrderDto createDeliveryOrderDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ApiResponse<DeliveryOrderDto>.ErrorResult(
-                    "Dữ liệu không hợp lệ",
-                    ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()
-                ));
-            }
-
             // Kiểm tra PO Number đã tồn tại
             if (await deliveryOrderRepository.IsPONumberExistsAsync(createDeliveryOrderDto.PONumber))
             {
@@ -166,14 +158,6 @@ namespace StockDemo.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateDeliveryOrderDto updateDeliveryOrderDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ApiResponse<DeliveryOrderDto>.ErrorResult(
-                    "Dữ liệu không hợp lệ",
-                    ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()
-                ));
-            }
-
             var deliveryOrder = await deliveryOrderRepository.GetDeliveryOrderWithDetailsAsync(id);
 
             if (deliveryOrder == null)

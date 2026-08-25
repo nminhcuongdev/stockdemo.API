@@ -58,14 +58,6 @@ namespace StockDemo.API.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ApiResponse<LoginResponseDto>.ErrorResult(
-                    "Dữ liệu không hợp lệ",
-                    ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()
-                ));
-            }
-
             // Tìm user theo username
             var user = await userRepository.GetByUsernameAsync(loginDto.Username);
 
@@ -113,14 +105,6 @@ namespace StockDemo.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateUserDto createUserDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ApiResponse<UserDto>.ErrorResult(
-                    "Dữ liệu không hợp lệ",
-                    ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()
-                ));
-            }
-
             // Kiểm tra username đã tồn tại chưa
             if (await userRepository.IsUsernameExistsAsync(createUserDto.Username))
             {
@@ -150,14 +134,6 @@ namespace StockDemo.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateUserDto updateUserDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ApiResponse<UserDto>.ErrorResult(
-                    "Dữ liệu không hợp lệ",
-                    ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()
-                ));
-            }
-
             var user = await userRepository.GetByIdAsync(id);
 
             if (user == null)
@@ -185,14 +161,6 @@ namespace StockDemo.API.Controllers
         [HttpPost("{id}/change-password")]
         public async Task<IActionResult> ChangePassword([FromRoute] int id, [FromBody] ChangePasswordDto changePasswordDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ApiResponse<object>.ErrorResult(
-                    "Dữ liệu không hợp lệ",
-                    ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()
-                ));
-            }
-
             var user = await userRepository.GetByIdAsync(id);
 
             if (user == null)

@@ -63,14 +63,6 @@ namespace StockDemo.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] TransferStockDto transferDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ApiResponse<StockTransferDto>.ErrorResult(
-                    "Dữ liệu không hợp lệ",
-                    ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()
-                ));
-            }
-
             var source = await stockRepository.GetByIdAsync(transferDto.SourceStockId);
             if (source == null)
             {

@@ -77,14 +77,6 @@ namespace StockDemo.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateProductDto createProductDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ApiResponse<ProductDto>.ErrorResult(
-                    "Dữ liệu không hợp lệ",
-                    ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()
-                ));
-            }
-
             // Kiểm tra mã sản phẩm đã tồn tại
             if (await productRepository.IsProductCodeExistsAsync(createProductDto.ProductCode))
             {
@@ -109,14 +101,6 @@ namespace StockDemo.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateProductDto updateProductDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ApiResponse<ProductDto>.ErrorResult(
-                    "Dữ liệu không hợp lệ",
-                    ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()
-                ));
-            }
-
             var product = await productRepository.GetByIdAsync(id);
 
             if (product == null)

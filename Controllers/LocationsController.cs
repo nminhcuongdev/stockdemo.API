@@ -78,14 +78,6 @@ namespace StockDemo.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateLocationDto createLocationDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ApiResponse<LocationDto>.ErrorResult(
-                    "Dữ liệu không hợp lệ",
-                    ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()
-                ));
-            }
-
             // Kiểm tra mã vị trí đã tồn tại
             if (await locationRepository.IsLocationCodeExistsAsync(createLocationDto.LocationCode))
             {
@@ -110,14 +102,6 @@ namespace StockDemo.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateLocationDto updateLocationDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ApiResponse<LocationDto>.ErrorResult(
-                    "Dữ liệu không hợp lệ",
-                    ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()
-                ));
-            }
-
             var location = await locationRepository.GetByIdAsync(id);
 
             if (location == null)

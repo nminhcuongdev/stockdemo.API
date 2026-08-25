@@ -48,14 +48,6 @@ namespace StockDemo.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Assign([FromBody] AssignEpcDto assignEpcDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ApiResponse<EpcMappingDto>.ErrorResult(
-                    "Dữ liệu không hợp lệ",
-                    ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()
-                ));
-            }
-
             var stock = await stockRepository.GetByQRCodeAsync(assignEpcDto.QRCode);
             if (stock == null)
             {
