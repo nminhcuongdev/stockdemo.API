@@ -35,15 +35,7 @@ builder.Services.AddControllers();
 // ModelState nữa.
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
-    options.InvalidModelStateResponseFactory = context =>
-    {
-        var errors = context.ModelState.Values
-            .SelectMany(v => v.Errors.Select(e => e.ErrorMessage))
-            .ToList();
-
-        return new BadRequestObjectResult(
-            ApiResponse<object>.ErrorResult("Dữ liệu không hợp lệ", errors));
-    };
+    options.InvalidModelStateResponseFactory = ValidationResponseFactory.Create;
 });
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

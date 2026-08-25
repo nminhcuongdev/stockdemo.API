@@ -66,19 +66,8 @@ namespace StockDemo.API.Tests.Controllers
             Assert.Equal("vi", existing.Locale);
         }
 
-        [Fact]
-        public async Task RegisterToken_returns_bad_request_on_invalid_model()
-        {
-            var controller = CreateController();
-            controller.ModelState.AddModelError("Token", "Token là bắt buộc");
-
-            var result = await controller.RegisterToken(new RegisterDeviceTokenDto { Token = "" });
-
-            var badRequest = Assert.IsType<BadRequestObjectResult>(result);
-            var payload = Assert.IsType<ApiResponse<object>>(badRequest.Value);
-            Assert.False(payload.Success);
-            repo.Verify(r => r.AddAsync(It.IsAny<DeviceToken>()), Times.Never);
-            repo.Verify(r => r.UpdateAsync(It.IsAny<DeviceToken>()), Times.Never);
-        }
+        // Invalid models never reach this action: [ApiController] short-circuits them in the MVC
+        // filter pipeline, which a direct unit-test call bypasses. That behaviour is covered by
+        // StockDemo.API.Tests.Models.ValidationResponseFactoryTests instead.
     }
 }
